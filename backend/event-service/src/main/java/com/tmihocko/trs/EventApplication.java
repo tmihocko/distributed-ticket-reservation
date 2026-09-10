@@ -1,13 +1,14 @@
-package com.mihocko.jsp;
+package com.tmihocko.trs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JspApplication {
+public class EventApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JspApplication.class, args);
+		SpringApplication.run(EventApplication.class, args);
 	}
 
 }
+	

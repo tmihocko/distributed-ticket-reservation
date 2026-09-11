@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "services.booking.base-url",
+  "type": "java.lang.String",
+  "description": "services.booking.base-url"
+}]}

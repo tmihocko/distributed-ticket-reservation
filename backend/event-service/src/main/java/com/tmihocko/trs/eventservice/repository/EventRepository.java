@@ -14,15 +14,17 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
 	@Query("""
 		SELECT e
-		FROM Event e
+		FROM EventEntity e
 		WHERE (:name IS NULL OR e.name = :name)
 		  AND (:date IS NULL OR e.date = :date)
-		  AND (:venueId IS NULL OR e.venueId = :venueId)
+		  AND (:venueId IS NULL OR e.venue.id = :venueId)
 	""")
 	List<EventEntity> search(
 		@Param("name") String name, 
 		@Param("date") OffsetDateTime date, 
 		@Param("venueId") Long venueId
 	);
+
+	
 
 }

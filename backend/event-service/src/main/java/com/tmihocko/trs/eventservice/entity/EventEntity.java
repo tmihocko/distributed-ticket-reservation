@@ -1,8 +1,6 @@
 package com.tmihocko.trs.eventservice.entity;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.stream.IntStream;
 
 import com.tmihocko.trs.eventservice.dto.CreateEventRequest;
 
@@ -33,10 +31,6 @@ public class EventEntity {
 	@JoinColumn(name="venueId")
 	private VenueEntity venue;
 
-	public Long getEventId() {
-		return eventId;
-	}
-	
 	public EventEntity(CreateEventRequest body, VenueEntity venue) {
 		if (body.capacity() == null || body.capacity() < 1) {
 			throw new IllegalArgumentException("Capacity must be greater than zero");
@@ -47,6 +41,31 @@ public class EventEntity {
 		this.capacity = body.capacity();
 		this.ticketsLeft = body.capacity();
 	} 
+
+	public Long getEventId() {
+		return eventId;
+	}
+
+	public Integer getCapacity() {
+		return capacity;
+	}
+
+	public OffsetDateTime getDate() {
+		return date;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Integer getTicketsLeft() {
+		return ticketsLeft;
+	}
+
+	public VenueEntity getVenue() {
+		return venue;
+	}
+
 	// required by JPA
 	protected EventEntity() {}
 }

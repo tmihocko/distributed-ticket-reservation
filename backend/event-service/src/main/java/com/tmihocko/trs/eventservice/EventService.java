@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.tmihocko.trs.eventservice.dto.CreateEventRequest;
@@ -18,12 +20,14 @@ import jakarta.transaction.Transactional;
 
 @Service 
 public class EventService {
+	private final EventClient eventClient;
 	private final EventRepository eventRepository;
 	private final VenueRepository venueRepository;
 
-	public EventService(EventRepository eventRepository, VenueRepository venueRepository) {
+	public EventService(EventRepository eventRepository, VenueRepository venueRepository, EventClient eventClient) {
 		this.eventRepository = eventRepository;
 		this.venueRepository = venueRepository;
+		this.eventClient = eventClient;
 
 	}	
 	public EventEntity getEvent(Long id) {
@@ -43,6 +47,7 @@ public class EventService {
 	 * and would prefer to see loading for ~3 seconds than have error when booking immediately
 	 * 
 	 */
+	@Transactional 
 	public EventEntity createEventAndPublish(CreateEventRequest body) {
 		String venueName = body.venueName().trim();
 
@@ -50,9 +55,9 @@ public class EventService {
 			.findByNameIgnoreCase(venueName)
 			.orElseGet(() -> venueRepository.save(new VenueEntity(venueName)));
 
-		EventEntity entity = new EventEntity(body, venue);
+		EventEntity eventEntity = new EventEntity(body, venue);
 
-		saveEvent(entity);
+		eventRepository.save(eventEntity);
 
 		List<String> seatNames = (body.seatNames() == null || body.seatNames().isEmpty())
 					? IntStream
@@ -61,15 +66,29 @@ public class EventService {
 						.toList()
 					: List.copyOf(body.seatNames());
 
-		// post("api/booking", body);
-		// wait for this to finish
+		// Make retry later
+		HttpStatusCode statusCode;
 
-		return entity;
-	}
-	
-	@Transactional 
-	private void saveEvent(EventEntity entity) {
-		
-		eventRepository.save(entity);
+		try {
+			statusCode = eventClient.postEventToBooking(
+				eventEntity,
+				seatNames
+			);
+		} catch (ResourceAccessException exception) {
+			throw new ResponseStatusException(
+				HttpStatus.SERVICE_UNAVAILABLE,
+				"Could not connect to Booking Service",
+				exception
+			);
+		}
+
+		if (!statusCode.is2xxSuccessful()) {
+			throw new ResponseStatusException(
+				HttpStatus.BAD_GATEWAY,
+				"Booking Service returned status "+ statusCode.value()
+			);
+		}
+
+		return eventEntity;
 	}
 }

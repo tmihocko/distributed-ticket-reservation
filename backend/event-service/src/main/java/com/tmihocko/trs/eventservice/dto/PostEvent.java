@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 
-public record CreateEventRequest(
+public record PostEvent(
 	String name, 
 	String venueName,
 	OffsetDateTime date, 

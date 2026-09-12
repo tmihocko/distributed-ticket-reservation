@@ -26,8 +26,8 @@
 
 	<modules>
 		<module>backend/event-service</module>
-		<!-- <module>backend/booking-service</module>
-		<module>backend/kafka</module> -->
+		<module>backend/booking-service</module>
+		<!-- <module>backend/kafka</module> -->
 		<module>backend/gateway</module>
 	</modules>
 

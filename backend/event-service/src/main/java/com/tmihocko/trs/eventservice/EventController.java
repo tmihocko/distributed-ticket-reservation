@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.tmihocko.trs.eventservice.dto.CreateEventRequest;
+import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.dto.EventInfo;
 import com.tmihocko.trs.eventservice.entity.EventEntity;
 
@@ -32,7 +32,7 @@ public class EventController {
 
 	@GetMapping("/{id}")
 	public EventInfo getEventById(@PathVariable Long id){ 
-		return EventInfo(eventService.getEvent(id));
+		return EventInfo.from(eventService.getEvent(id));
 	}
 	
 	
@@ -52,8 +52,8 @@ public class EventController {
 		return eventInfos;
 	}
 
-	@PostMapping("")
-	public ResponseEntity<Long> createEvent(@RequestBody CreateEventRequest entity) {
+	@PostMapping
+	public ResponseEntity<Long> createEvent(@RequestBody PostEvent entity) {
 		
 		EventEntity savedEvent = eventService.createEventAndPublish(entity);
 		

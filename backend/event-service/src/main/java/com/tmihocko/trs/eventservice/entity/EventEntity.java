@@ -2,7 +2,7 @@ package com.tmihocko.trs.eventservice.entity;
 
 import java.time.OffsetDateTime;
 
-import com.tmihocko.trs.eventservice.dto.CreateEventRequest;
+import com.tmihocko.trs.eventservice.dto.PostEvent;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class EventEntity {
 	@JoinColumn(name="venueId")
 	private VenueEntity venue;
 
-	public EventEntity(CreateEventRequest body, VenueEntity venue) {
+	public EventEntity(PostEvent body, VenueEntity venue) {
 		if (body.capacity() == null || body.capacity() < 1) {
 			throw new IllegalArgumentException("Capacity must be greater than zero");
 		}

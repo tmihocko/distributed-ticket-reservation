@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.tmihocko.trs.eventservice.dto.CreateEventRequest;
+import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.entity.EventEntity;
 import com.tmihocko.trs.eventservice.entity.VenueEntity;
 import com.tmihocko.trs.eventservice.repository.EventRepository;
@@ -48,7 +48,7 @@ public class EventService {
 	 * 
 	 */
 	@Transactional 
-	public EventEntity createEventAndPublish(CreateEventRequest body) {
+	public EventEntity createEventAndPublish(PostEvent body) {
 		String venueName = body.venueName().trim();
 
 		VenueEntity venue = venueRepository

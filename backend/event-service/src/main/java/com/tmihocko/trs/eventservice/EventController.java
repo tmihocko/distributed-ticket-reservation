@@ -8,6 +8,8 @@ import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.dto.EventInfo;
 import com.tmihocko.trs.eventservice.entity.EventEntity;
 
+import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -53,8 +55,9 @@ public class EventController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Long> createEvent(@RequestBody PostEvent entity) {
-		
+	public ResponseEntity<Long> createEvent(
+		@Valid @RequestBody PostEvent entity
+	) {
 		EventEntity savedEvent = eventService.createEventAndPublish(entity);
 		
 		URI location = ServletUriComponentsBuilder

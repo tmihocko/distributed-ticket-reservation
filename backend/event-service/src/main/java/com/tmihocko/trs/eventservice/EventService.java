@@ -49,22 +49,43 @@ public class EventService {
 	 */
 	@Transactional 
 	public EventEntity createEventAndPublish(PostEvent body) {
+		List<String> seatNames;
+
+		if (body.seatNames() == null || body.seatNames().isEmpty()) {
+			 seatNames = IntStream
+                .rangeClosed(1, body.capacity())
+                .mapToObj(String::valueOf)
+                .toList();
+		} else {
+			seatNames = body.seatNames()
+				.stream()
+				.map(String::trim)
+				.toList();
+
+			if (seatNames.size() != body.capacity()) {
+				throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"Seat count must equal event capacity"
+				);
+			}
+
+			if (seatNames.stream().distinct().count() != seatNames.size()) {
+				throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"Seat names must be unique"
+				);
+			}
+		}
+
 		String venueName = body.venueName().trim();
 
 		VenueEntity venue = venueRepository
 			.findByNameIgnoreCase(venueName)
 			.orElseGet(() -> venueRepository.save(new VenueEntity(venueName)));
 
-		EventEntity eventEntity = new EventEntity(body, venue);
-
-		eventRepository.save(eventEntity);
-
-		List<String> seatNames = (body.seatNames() == null || body.seatNames().isEmpty())
-					? IntStream
-						.rangeClosed(1, body.capacity())
-						.mapToObj(String::valueOf)
-						.toList()
-					: List.copyOf(body.seatNames());
+		EventEntity eventEntity = eventRepository.save(
+			new EventEntity(body, venue)
+    	);
 
 		// Make retry later
 		HttpStatusCode statusCode;

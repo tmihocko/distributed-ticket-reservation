@@ -1,1 +1,1 @@
-Java 26, spring boot, sql, hibernate, postgres, rabbitmq, docker, maven, ci/cd
+Java 26, spring boot, sql, maven, hibernate, postgres, kafka, ci/cd, ci/cd

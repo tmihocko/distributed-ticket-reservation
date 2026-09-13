@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: event-service
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/event_db}
+    username: ${DATABASE_USERNAME:event_user}
+    password: ${DATABASE_PASSWORD:event_password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+    consumer:
+      group-id: event-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        "[spring.json.trusted.packages]": com.tmihocko.trs.contracts
+        "[spring.json.value.default.type]": com.tmihocko.trs.contracts.BookingEvent
+
+    listener:
+      ack-mode: record
+
+server:
+  port: ${SERVER_PORT:8081}
+
+services:
+  booking:
+    base-url: ${BOOKING_SERVICE_URL:http://localhost:8082}
+
+app:
+  kafka:
+    booking-events-topic: booking-events.v1

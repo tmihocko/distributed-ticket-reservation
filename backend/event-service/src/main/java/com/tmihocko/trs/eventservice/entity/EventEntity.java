@@ -44,6 +44,19 @@ public class EventEntity {
 		this.ticketsLeft = body.capacity();
 	} 
 
+	// Addition, not assignment
+	public void changeTicketsLeft(Integer amount) {
+		int updatedTicketsLeft = ticketsLeft + amount;
+
+		if (updatedTicketsLeft < 0 || updatedTicketsLeft > capacity) {
+			throw new IllegalStateException(
+				"Invalid tickets left value: " + updatedTicketsLeft
+			);
+		}
+
+		ticketsLeft = updatedTicketsLeft;
+	}	
+
 	public Long getEventId() {
 		return eventId;
 	}

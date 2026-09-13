@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.tmihocko.trs.contracts.BookingEvent;
 import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.entity.EventEntity;
 import com.tmihocko.trs.eventservice.entity.VenueEntity;
@@ -18,7 +19,8 @@ import com.tmihocko.trs.eventservice.repository.VenueRepository;
 
 import jakarta.transaction.Transactional;
 
-@Service 
+@Service
+
 public class EventService {
 	private final EventClient eventClient;
 	private final EventRepository eventRepository;
@@ -149,5 +151,23 @@ public class EventService {
 		}
 
 		return eventEntity;
+	}
+
+	@Transactional 
+	public void applyBookingEvent(BookingEvent message) {
+		EventEntity eventEntity = eventRepository
+			.findById(message.eventId())
+			.orElseThrow(() -> new IllegalStateException(
+				"Event not found: " + message.eventId()
+			));
+
+		int amount = message.bookings().size();
+
+		switch (message.type()) {
+			case CREATED -> eventEntity.changeTicketsLeft(-amount);
+			case DELETED -> eventEntity.changeTicketsLeft(amount);
+		}	
+
+		// TODO: Store message ids for idempotency
 	}
 }

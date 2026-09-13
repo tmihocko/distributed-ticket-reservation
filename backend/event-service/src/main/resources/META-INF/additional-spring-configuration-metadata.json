@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "services.booking.base-url",
-  "type": "java.lang.String",
-  "description": "services.booking.base-url"
-}]}
+{"properties": [
+  {
+    "name": "services.booking.base-url",
+    "type": "java.lang.String",
+    "description": "services.booking.base-url"
+  },
+  {
+    "name": "app.kafka.booking-events-topic",
+    "type": "java.lang.String",
+    "description": "A description for 'app.kafka.booking-events-topic'"
+  }
+]} 

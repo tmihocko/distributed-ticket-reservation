@@ -1,4 +1,11 @@
-Java 25, spring boot, sql, maven, hibernate, postgres, kafka, ci/cd,
+Java 25, spring boot, sql, maven, hibernate, postgres, kafka,
+
+TODO:
+
+- Dockerfile the services
+- Implement retries
+- Make transaction distributed, (in todo label)
+- CI/CD with Jenkins: linting and on-prem deploy
 
 # Microservices
 
@@ -9,5 +16,3 @@ Java 25, spring boot, sql, maven, hibernate, postgres, kafka, ci/cd,
 ## Gateway
 
 ## Kafka
-
-job not done

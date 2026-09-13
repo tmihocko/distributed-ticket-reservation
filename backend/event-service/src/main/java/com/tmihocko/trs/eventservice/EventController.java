@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,9 +32,9 @@ public class EventController {
 		this.eventService = eventService;
 	}
 
-	@GetMapping("/{id}")
-	public EventInfo getEventById(@PathVariable Long id){ 
-		return EventInfo.from(eventService.getEvent(id));
+	@GetMapping("/{eventId}")
+	public EventInfo getEventById(@PathVariable Long eventId){ 
+		return EventInfo.from(eventService.getEvent(eventId));
 	}
 	
 	
@@ -64,6 +65,14 @@ public class EventController {
 		return ResponseEntity.created(location).body(savedEvent.getEventId());
 	}
 	
+	@DeleteMapping("/{eventId}")
+	public ResponseEntity<Void> deleteEvent(
+		@PathVariable Long eventId
+	) {
+		eventService.deleteEvent(eventId);
+
+		return ResponseEntity.noContent().build();
+	}
 
 
 }

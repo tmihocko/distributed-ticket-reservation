@@ -32,6 +32,10 @@ public class SeatEntity {
 		this.booked = booked;
 	}
 
+	public Long getBookingId() {
+		return bookingId;
+	}
+
 	public void setBookingId(Long bookingId) {
 		this.bookingId = bookingId;
 	}

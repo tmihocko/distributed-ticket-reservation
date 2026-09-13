@@ -33,9 +33,17 @@ public class BookingEntity {
 		this.bookedAt = LocalDateTime.now();
 	}
 
-	protected BookingEntity() {}
+	public Long getEventId() {
+		return eventId;
+	}
+
+	public String getSeatName() {
+		return seatName;
+	}
+
 	public Long getBookingId() {
 		return bookingId;
 	}
-
+	
+	protected BookingEntity() {}
 }

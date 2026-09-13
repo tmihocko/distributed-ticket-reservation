@@ -32,8 +32,8 @@ public class BookingService {
 		SeatEntity seat = seatRepository
 				.findForBooking(body.eventId(), body.seatName())
 				.orElseThrow(() -> new ResponseStatusException(
-						HttpStatus.NOT_FOUND,
-						"Seat not found"
+					HttpStatus.NOT_FOUND,
+					"Seat not found"
 				));
 
 		if (seat.getBooked()) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seat is already booked");
@@ -47,6 +47,38 @@ public class BookingService {
 		return booking.getBookingId();
 	}
 
+	@Transactional 
+	public void unbookSeat(Long bookingId) {
+		BookingEntity booking = bookingRepository
+			.findById(bookingId)
+			.orElseThrow(() -> new ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"Booking not found"
+			));
+
+		SeatEntity seat = seatRepository
+			.findForBooking(booking.getEventId(), booking.getSeatName())
+			.orElseThrow(() -> new IllegalStateException(
+            	"Booking exists but its seat does not exist"
+        	));
+
+		if (!bookingId.equals(seat.getBookingId())) {
+			throw new IllegalStateException("Booking and seat records are inconsistent");
+		}
+		
+		seat.setBooked(false);
+		seat.setBookingId(null);
+		
+		bookingRepository.delete(booking);
+		// notify kafka
+	}
+
+	@Transactional 
+	public void deleteEvent(Long eventId) {
+		bookingRepository.deleteByEventId(eventId);
+		seatRepository.deleteByEventId(eventId);
+	}
+	
 	@Transactional 
 	public void initializeEvent(Long eventId, List<String> seatNames) {
 		if (eventId == null || eventId < 1) {

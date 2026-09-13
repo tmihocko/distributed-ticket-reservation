@@ -32,6 +32,12 @@ public class EventClient {
 			.exchange((httpRequest, httpResponse) -> httpResponse.getStatusCode());
 	}
 
+	public HttpStatusCode deleteEventFromBooking(Long eventId) {
+		return restClient.delete()
+			.uri("/internal/events/{eventId}", eventId)
+			.exchange((request, response) -> response.getStatusCode());
+	}
+
 	private record BookingEventRequest(
             Long eventId,
             List<String> seatNames

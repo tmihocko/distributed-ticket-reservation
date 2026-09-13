@@ -1,6 +1,8 @@
 package com.tmihocko.trs.bookingservice.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,4 +41,13 @@ public class InternalEventController {
 
 		return ResponseEntity.noContent().build();
     }
+
+	@DeleteMapping("/{eventId}")
+	public ResponseEntity<Void> deleteEvent(
+		@PathVariable Long eventId
+	) {
+		bookingService.deleteEvent(eventId);
+
+		return ResponseEntity.noContent().build();
+	}
 }

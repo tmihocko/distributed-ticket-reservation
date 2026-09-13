@@ -30,6 +30,7 @@ public class EventService {
 		this.eventClient = eventClient;
 
 	}	
+
 	public EventEntity getEvent(Long id) {
 		return eventRepository
 			.findById(id)
@@ -38,6 +39,43 @@ public class EventService {
 
 	public List<EventEntity> getEvents(String name, OffsetDateTime date, Long venueId) {
 		return eventRepository.search(name, date, venueId);
+	}
+
+	@Transactional 
+	public void deleteEvent(Long eventId) {
+		EventEntity event = eventRepository
+			.findById(eventId)
+			.orElseThrow(() -> new ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"Event not found"
+			));
+
+		HttpStatusCode status;
+
+		// TODO: Add retry on connection failures and 5xx responses
+		// Deletion is idempotent, retrying is safe
+		try {
+			status = eventClient.deleteEventFromBooking(eventId);
+		} catch (ResourceAccessException exception) {
+			throw new ResponseStatusException(
+				HttpStatus.SERVICE_UNAVAILABLE,
+				"Could not connect to Booking Service",
+				exception
+			);
+		}
+
+		if (!status.is2xxSuccessful()) {
+			throw new ResponseStatusException(
+				HttpStatus.BAD_GATEWAY,
+				"Booking Service returned status " + status.value()
+			);
+		}
+		
+		// TODO: This isnt made as a distributed transaction, 
+		// If booking service deletes something, but this fails to commit,
+		// The event may not any have seats, 
+		// Fix later
+		eventRepository.delete(event);
 	}
 
 	/**
@@ -87,9 +125,9 @@ public class EventService {
 			new EventEntity(body, venue)
     	);
 
-		// Make retry later
 		HttpStatusCode statusCode;
-
+		
+		// TODO: retry later
 		try {
 			statusCode = eventClient.postEventToBooking(
 				eventEntity,

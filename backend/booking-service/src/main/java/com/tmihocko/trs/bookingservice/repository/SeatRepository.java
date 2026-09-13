@@ -29,4 +29,7 @@ public interface SeatRepository extends JpaRepository<SeatEntity, SeatId> {
 	);
 
 	boolean existsByEventId(Long eventId);
+
+	void deleteByEventId(Long eventId);
+
 }

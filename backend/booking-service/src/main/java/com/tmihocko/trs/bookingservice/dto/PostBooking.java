@@ -8,6 +8,4 @@ public record PostBooking(
 	@NotNull @Positive Long eventId,
 	@NotBlank String seatName,
 	@NotBlank String userId
-) {
-	
-} 
+) {} 

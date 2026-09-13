@@ -1,7 +1,6 @@
 package com.tmihocko.trs.contracts;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -10,47 +9,29 @@ public record BookingEvent(
 	UUID messageId,
 	Long eventId,
 	BookingType type,
-	List<Booking> bookings,
+	Long bookingId,
+	String seatName,
 	Instant occurredAt
 ) {
 	public BookingEvent {
 		Objects.requireNonNull(messageId);
 		Objects.requireNonNull(eventId);
 		Objects.requireNonNull(type);
-		Objects.requireNonNull(bookings);
+		Objects.requireNonNull(bookingId);
+		Objects.requireNonNull(seatName);
 		Objects.requireNonNull(occurredAt);
 
-		if (bookings.isEmpty()) {
-			throw new IllegalArgumentException("Booking event must contain at least one booking");
+		if (seatName.isBlank()) {
+			throw new IllegalArgumentException( "Seat name cannot be blank");
 		}
-
-		bookings = List.copyOf(bookings);
 	}
 	
-	public static BookingEvent batch(
-		Long eventId,
-		BookingType type,
-		List<Booking> bookings
-	) {
-		return new BookingEvent(UUID.randomUUID(), eventId, type, bookings, Instant.now());
+	public BookingEvent(Long eventId, BookingType type, Long bookingId, String seatName) {
+		this(UUID.randomUUID(), eventId, type, bookingId, seatName, Instant.now());
 	}
 
 	public enum BookingType {
 		CREATED,
 		DELETED,
-	}
-
-	public record Booking(
-		Long bookingId,
-		String seatName
-	) {
-		public Booking {
-			Objects.requireNonNull(bookingId);
-			Objects.requireNonNull(seatName);
-
-			if (seatName.isBlank()) {
-				throw new IllegalArgumentException( "Seat name cannot be blank");
-			}
-		}
 	}
 }

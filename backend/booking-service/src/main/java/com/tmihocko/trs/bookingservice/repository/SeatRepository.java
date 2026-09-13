@@ -28,6 +28,7 @@ public interface SeatRepository extends JpaRepository<SeatEntity, SeatId> {
 		@Param("seatName") String seatName
 	);
 
+
 	boolean existsByEventId(Long eventId);
 
 	void deleteByEventId(Long eventId);

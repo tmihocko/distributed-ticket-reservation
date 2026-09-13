@@ -14,6 +14,8 @@ import com.tmihocko.trs.contracts.BookingEvent;
 import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.entity.EventEntity;
 import com.tmihocko.trs.eventservice.entity.VenueEntity;
+import com.tmihocko.trs.eventservice.inbox.InboxMessageEntity;
+import com.tmihocko.trs.eventservice.inbox.InboxMessageRepository;
 import com.tmihocko.trs.eventservice.repository.EventRepository;
 import com.tmihocko.trs.eventservice.repository.VenueRepository;
 
@@ -25,12 +27,13 @@ public class EventService {
 	private final EventClient eventClient;
 	private final EventRepository eventRepository;
 	private final VenueRepository venueRepository;
+	private final InboxMessageRepository inboxMessageRepository;
 
-	public EventService(EventRepository eventRepository, VenueRepository venueRepository, EventClient eventClient) {
+	public EventService(InboxMessageRepository inboxMessageRepository, EventRepository eventRepository, VenueRepository venueRepository, EventClient eventClient) {
+		this.inboxMessageRepository = inboxMessageRepository;
 		this.eventRepository = eventRepository;
 		this.venueRepository = venueRepository;
 		this.eventClient = eventClient;
-
 	}	
 
 	public EventEntity getEvent(Long id) {
@@ -155,19 +158,23 @@ public class EventService {
 
 	@Transactional 
 	public void applyBookingEvent(BookingEvent message) {
+		if (inboxMessageRepository.existsById(message.messageId())) return;
+
 		EventEntity eventEntity = eventRepository
 			.findById(message.eventId())
-			.orElseThrow(() -> new IllegalStateException(
-				"Event not found: " + message.eventId()
-			));
+			.orElse(null);
 
-		int amount = message.bookings().size();
+		// A booking message can come after the event was deleted
+		// Just mark it as processed, do not retry
+		if (eventEntity == null) {
+			inboxMessageRepository.save(new InboxMessageEntity(message.messageId()));
+		}
 
 		switch (message.type()) {
-			case CREATED -> eventEntity.changeTicketsLeft(-amount);
-			case DELETED -> eventEntity.changeTicketsLeft(amount);
-		}	
+			case CREATED -> eventEntity.changeTicketsLeft(-1);
+			case DELETED -> eventEntity.changeTicketsLeft(1);
+		}
 
-		// TODO: Store message ids for idempotency
+		inboxMessageRepository.save(new InboxMessageEntity(message.messageId()));
 	}
 }

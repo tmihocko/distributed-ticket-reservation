@@ -14,10 +14,7 @@ public class BookingEventConsumer {
 		this.eventService = eventService;
 	}
 
-	@KafkaListener(
-		topics = "${app.kafka.booking-events-topic}",
-		groupId = "event-service"
-	)
+	@KafkaListener(topics = "${app.kafka.booking-events-topic}")
 	public void consume(BookingEvent event) {
 		eventService.applyBookingEvent(event);
 	}

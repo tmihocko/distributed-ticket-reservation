@@ -32,11 +32,11 @@
 			<artifactId>spring-boot-starter-kafka</artifactId>
 		</dependency>
 
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.tmihocko</groupId>
 			<artifactId>messaging-contracts</artifactId>
 			<version>${project.version}</version>
-		</dependency> -->
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

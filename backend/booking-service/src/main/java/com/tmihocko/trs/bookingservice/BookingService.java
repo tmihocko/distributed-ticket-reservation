@@ -1,6 +1,7 @@
 package com.tmihocko.trs.bookingservice;
 
 import com.tmihocko.trs.bookingservice.repository.SeatRepository;
+import com.tmihocko.trs.contracts.BookingEvent.BookingType;
 
 import jakarta.transaction.Transactional;
 
@@ -14,27 +15,31 @@ import com.tmihocko.trs.bookingservice.dto.PostBooking;
 import com.tmihocko.trs.bookingservice.entity.BookingEntity;
 import com.tmihocko.trs.bookingservice.entity.SeatEntity;
 import com.tmihocko.trs.bookingservice.entity.SeatId;
+import com.tmihocko.trs.bookingservice.outbox.OutboxEventEntity;
+import com.tmihocko.trs.bookingservice.outbox.OutboxEventRepository;
 import com.tmihocko.trs.bookingservice.repository.BookingRepository;
 
 @Service 
 public class BookingService {
 
+	private final BookingRepository bookingRepository;
 	private final SeatRepository seatRepository;
-	BookingRepository bookingRepository;
+	private final OutboxEventRepository outboxEventRepository;
 
-	BookingService(BookingRepository bookingRepository, SeatRepository seatRepository) {
+	BookingService(BookingRepository bookingRepository, SeatRepository seatRepository, OutboxEventRepository outboxEventRepository) {
 		this.bookingRepository = bookingRepository;
 		this.seatRepository = seatRepository;
+		this.outboxEventRepository = outboxEventRepository;
 	}
 	
 	@Transactional
 	public Long bookSeat(PostBooking body) {
 		SeatEntity seat = seatRepository
-				.findForBooking(body.eventId(), body.seatName())
-				.orElseThrow(() -> new ResponseStatusException(
-					HttpStatus.NOT_FOUND,
-					"Seat not found"
-				));
+			.findForBooking(body.eventId(), body.seatName())
+			.orElseThrow(() -> new ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"Seat not found"
+			));
 
 		if (seat.getBooked()) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seat is already booked");
 		
@@ -43,6 +48,15 @@ public class BookingService {
 
 		seat.setBooked(true);
 		seat.setBookingId(booking.getBookingId());
+
+		outboxEventRepository.save(
+			new OutboxEventEntity(
+				booking.getEventId(), 
+				booking.getBookingId(), 
+				booking.getSeatName(), 
+				BookingType.CREATED
+			)
+		);
 
 		return booking.getBookingId();
 	}
@@ -68,9 +82,18 @@ public class BookingService {
 		
 		seat.setBooked(false);
 		seat.setBookingId(null);
+
+
+		outboxEventRepository.save(
+			new OutboxEventEntity(
+				booking.getEventId(),
+				booking.getBookingId(),
+				booking.getSeatName(),
+				BookingType.DELETED
+			)
+		);
 		
 		bookingRepository.delete(booking);
-		// notify kafka
 	}
 
 	@Transactional 

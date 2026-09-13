@@ -3,9 +3,11 @@ package com.tmihocko.trs.bookingservice.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 
 @Entity 
+@Table(name = "seats")
 @IdClass(SeatId.class)
 public class SeatEntity {
 

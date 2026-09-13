@@ -2,7 +2,6 @@ package com.tmihocko.trs.eventservice;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.tmihocko.trs.eventservice.dto.PostEvent;
 import com.tmihocko.trs.eventservice.dto.EventInfo;
@@ -60,11 +59,7 @@ public class EventController {
 	) {
 		EventEntity savedEvent = eventService.createEventAndPublish(entity);
 		
-		URI location = ServletUriComponentsBuilder
-			.fromCurrentRequest()
-			.path("/{id}")
-			.buildAndExpand(savedEvent.getEventId())
-			.toUri();
+		URI location = URI.create("/api/events/" + savedEvent.getEventId());
 
 		return ResponseEntity.created(location).body(savedEvent.getEventId());
 	}

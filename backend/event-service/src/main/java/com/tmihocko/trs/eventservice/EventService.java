@@ -76,7 +76,7 @@ public class EventService {
 			);
 		}
 		
-		// TODO: This isnt made as a distributed transaction, 
+		// TODO: This should be a distributed transaction (saga), 
 		// If booking service deletes something, but this fails to commit,
 		// The event may not any have seats, 
 		// Fix later
@@ -168,6 +168,7 @@ public class EventService {
 		// Just mark it as processed, do not retry
 		if (eventEntity == null) {
 			inboxMessageRepository.save(new InboxMessageEntity(message.messageId()));
+			return;
 		}
 
 		switch (message.type()) {

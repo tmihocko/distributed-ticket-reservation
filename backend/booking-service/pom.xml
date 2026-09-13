@@ -33,6 +33,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jackson</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.tmihocko</groupId>
 			<artifactId>messaging-contracts</artifactId>
 			<version>${project.version}</version>
